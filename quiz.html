@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>اختبر حصيلتك</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#EEF3F0;--card:#FFFFFF;--ink:#17302D;--muted:#5C716D;--brand:#0E4D48;--brand-ink:#FFFFFF;--gold:#A87A1E;--line:#CFDCD7;--ok:#1E7A4C;--okbg:#E2F4EA;--no:#B3372F;--nobg:#FBE8E6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0C1A18;--card:#13262A;--ink:#E7F1EE;--muted:#9DB5B0;--brand:#5CC2B5;--brand-ink:#0C1A18;--gold:#E0B25A;--line:#27423F;--ok:#6FD6A0;--okbg:#14382A;--no:#FF9A90;--nobg:#401C1A}}
+:root[data-theme="dark"]{--bg:#0C1A18;--card:#13262A;--ink:#E7F1EE;--muted:#9DB5B0;--brand:#5CC2B5;--brand-ink:#0C1A18;--gold:#E0B25A;--line:#27423F;--ok:#6FD6A0;--okbg:#14382A;--no:#FF9A90;--nobg:#401C1A}
+*{box-sizing:border-box}
+html{color-scheme:light dark;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arabic","Amiri","Traditional Arabic",serif;font-size:21px;line-height:2}
+main{max-width:680px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,button.go{font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 20px}
+.hide{display:none!important}
+.start{text-align:center;padding:40px 20px}
+.start h1{font-size:46px;line-height:1.3;margin:0 0 8px;color:var(--brand)}
+.start p{margin:0 auto 24px;max-width:30ch;color:var(--muted)}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.go{background:var(--brand);color:var(--brand-ink);border:0;border-radius:12px;padding:10px 30px;font-size:20px;font-weight:700}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:18px;color:var(--muted);margin-bottom:8px}
+.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-bottom:18px}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
+.q{font-size:25px;line-height:1.8;margin:0 0 16px;font-weight:700}
+.opts{display:grid;gap:10px}
+.opt{display:block;width:100%;text-align:right;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:10px 16px;font-size:21px;line-height:1.8;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--brand)}
+.opt:disabled{cursor:default;opacity:1}
+.opt.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.opt.no{background:var(--nobg);border-color:var(--no);color:var(--no)}
+.fb{min-height:34px;margin:14px 0 4px;font-weight:700;font-size:20px}
+.next{margin-top:6px}
+.result{text-align:center}
+.score{font-size:72px;line-height:1.2;color:var(--brand);margin:0}
+.result h2{margin:4px 0 6px;font-size:28px}
+.result p{margin:0 0 18px;color:var(--muted)}
+.rev{text-align:right;margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+.rev h3{margin:0 0 10px;font-size:22px}
+.item{border-right:4px solid var(--no);padding:2px 12px;margin-bottom:14px;font-size:19px;line-height:1.8}
+.item b{display:block}
+.item span{color:var(--ok);display:block}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:480px){body{font-size:19px}.q{font-size:22px}.opt{font-size:19px}.start h1{font-size:38px}}
+</style>
+</head>
+<body>
+<main>
+<section id="start" class="card start">
+<h1>اختبر حصيلتك</h1>
+<p>٢٥ سؤالًا في الأذكار والأدعية.</p>
+<button class="go" id="begin">ابدأ الاختبار</button>
+</section>
+
+<section id="quiz" class="card hide">
+<div class="top"><span id="pos"></span><span id="pts"></span></div>
+<div class="bar"><i id="fill"></i></div>
+<h2 class="q" id="qt"></h2>
+<div class="opts" id="opts"></div>
+<div class="fb" id="fb" aria-live="polite"></div>
+<button class="go next hide" id="next">السؤال التالي</button>
+</section>
+
+<section id="end" class="card result hide">
+<p class="score" id="sc"></p>
+<h2 id="msg"></h2>
+<p id="pc"></p>
+<button class="go" id="again">محاولة أخرى</button>
+<div class="rev hide" id="rev"><h3>راجع إجاباتك</h3><div id="revl"></div></div>
+</section>
+</main>
+
+<script>
+const Q=[
+{q:"مما ورد قوله عند الاستيقاظ من النوم:",o:["الحمد لله الذي أطعمنا وسقانا وكفانا وآوانا","الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور","باسمك اللهم أحيا وأموت","كل ما ذُكر"],a:1},
+{q:"من استيقظ من الليل فقال هذا الذكر قُبلت صلاته، واستجيب دعاؤه:",o:["لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير، الحمد لله وسبحان الله ولا إله إلا الله والله أكبر","لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير","سبحان الله وبحمده سبحان الله العظيم","سبحان الله والحمد لله ولا إله إلا الله والله أكبر"],a:0},
+{q:"جاء في الحديث أن من أسبغ الوضوء ثم قال ... فتحت له أبواب الجنة الثمانية يدخل من أيها شاء:",o:["سبحانك اللهم وبحمدك أشهد ألا إله إلا أنت أستغفرك وأتوب إليك","لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير","أشهد ألا إله إلا الله وأن محمدًا عبد الله ورسوله","رضيت بالله ربًا وبالإسلام دينًا وبمحمد رسولًا"],a:2},
+{q:"مما تُستفتح به الصلاة:",o:["الله أكبر كبيرًا والحمد لله كثيرًا وسبحان الله بكرة وأصيلًا","اللهم باعد بيني وبين خطاياي كما باعدت بين المشرق والمغرب، اللهم نقني من خطاياي كما ينقى الثوب الأبيض من الدنس، اللهم اغسلني من خطاياي بالماء والثلج والبرد","سبحانك اللهم وبحمدك وتبارك اسمك وتعالى جدك ولا إله غيرك","كل ما ذُكر"],a:3},
+{q:"من أدعية الركوع والسجود:",o:["سبحان ربي العظيم / سبحان ربي الأعلى","سبوح قدوس رب الملائكة والروح","سبحان ذي الجبروت والملكوت والكبرياء والعظمة","كل ما ذُكر"],a:3},
+{q:"قول: «ربنا ولك الحمد حمدًا كثيرًا طيبًا مباركًا فيه» بعد قول «سمع الله لمن حمده» عند الرفع من الركوع؛ قال فيها النبي ﷺ عندما سمعها من رجل صلى وراءه:",o:["عجبت لها فتحت لها أبواب السماء","رأيت بضعة وثلاثين ملكًا يبتدرونها أيهم يكتبها أول","غُفر له ذنبه","اُستجيب دعاؤه"],a:1},
+{q:"أوصى النبي ﷺ معاذًا رضي الله عنه ألا يدع هذا الدعاء دبر كل صلاة:",o:["اللهم اغفر لي وارحمني وعافني وارزقني","اللهم إني أعوذ بك من عذاب جهنم ومن عذاب القبر ومن فتنة المحيا والممات ومن شر فتنة المسيح الدجال","اللهم أعني على ذكرك وشكرك وحسن عبادتك","اللهم إني ظلمت نفسي ظلمًا كثيرًا، ولا يغفر الذنوب إلا أنت، فاغفر لي مغفرة من عندك، وارحمني إنك أنت الغفور الرحيم"],a:2},
+{q:"مما ورد في صيغ التسبيح بعد الصلوات:",o:["سبحان الله، الحمد لله، الله أكبر، كل واحدة ٣٣ مرة، ثم تكملة المئة: لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير","سبحان الله، الحمد لله، لا إله إلا الله، الله أكبر، كل واحدة ٢٥ مرة","سبحان الله، الحمد لله، الله أكبر، كل واحدة ١٠ مرات","كل ما ذُكر"],a:3},
+{q:"كان النبي ﷺ يقول إذا سلّم من الوتر ... ثلاثًا، ويرفع صوته في الثالثة:",o:["سبوح قدوس رب الملائكة والروح","سبحانك اللهم وبحمدك اللهم اغفر لي","سبحان الملك القدوس","سبحان ذي الجبروت والملكوت والكبرياء والعظمة"],a:2},
+{q:"من مواطن قراءة سورة الإخلاص والمعوذتين:",o:["بعد الصلوات الخمس","في الصباح والمساء ثلاث مرات","عند النوم، مع النفث ومسح الجسم، ثلاث مرات","كل ما ذُكر"],a:3},
+{q:"ورد في الحديث أن من قال هذا الذكر حين يصبح لم تصبه فجأة بلاء حتى يمسي، وحين يمسي لم تصبه فجأة بلاء حتى يصبح:",o:["أعوذ بكلمات الله التامات من شر ما خلق","بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم","أعوذ بكلمات الله التامة من كل شيطان وهامة ومن كل عين لامة","أعوذ بكلمات الله التامة من غضبه وشر عباده، ومن همزات الشياطين وأن يحضرون"],a:1},
+{q:"هذه الكلمات تعدل ذكر ساعات:",o:["سبحان الله وبحمده سبحان الله العظيم","سبحان الله والحمد لله ولا إله إلا الله والله أكبر","سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته (ثلاث مرات)","لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير"],a:2},
+{q:"أوصى النبي ﷺ ابنته فاطمة رضي الله عنها أن تقول هذا الدعاء إذا أصبحت وإذا أمست:",o:["اللهم إني أسألك العافية في الدنيا والآخرة","رب اغفر لي ذنوبي إنه لا يغفر الذنوب غيرك","يا حي يا قيوم برحمتك أستغيث أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين","اللهم إني أسألك الهدى والتقى والعفاف والغنى"],a:2},
+{q:"أكمل الحديث: قال ﷺ: «من قال ... في يوم مئة مرة حطت خطاياه وإن كانت مثل زبد البحر»:",o:["سبحان الله وبحمده سبحان الله العظيم","لا حول ولا قوة إلا بالله","سبحان الله وبحمده","لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير"],a:2},
+{q:"ثواب قول «لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير» في يوم مئة مرة:",o:["كُتبت له مئة حسنة، ومُحيت عنه مئة سيئة","كانت له عدل عشر رقاب، وكانت له حرزًا من الشيطان يومه ذلك حتى يمسي","لم يأت أحد بأفضل مما جاء به إلا أحد عمل أكثر من ذلك","كل ما ذُكر"],a:3},
+{q:"أكمل الحديث: قال ﷺ: «من نزل منزلًا ثم قال: ... لم يضره شيء حتى يرتحل من منزله ذلك»:",o:["أعوذ بكلمات الله التامات من شر ما خلق","بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم","أعوذ بكلمات الله التامة من كل شيطان وهامة ومن كل عين لامة","أعوذ بكلمات الله التامة من غضبه وشر عباده، ومن همزات الشياطين وأن يحضرون"],a:0},
+{q:"ورد عنه ﷺ أنه كان:",o:["يستغفر الله ويتوب إليه في اليوم أكثر من سبعين مرة","يتوب إلى الله في اليوم مئة مرة","يُعدّ له في المجلس الواحد مئة مرة: رب اغفر لي وتب علي إنك أنت التواب الرحيم","كل ما ذُكر"],a:3},
+{q:"جاء في حديث أبي هريرة رضي الله عنه في فضل قراءة آية الكرسي عند النوم:",o:["لن يزال عليك من الله حافظ","من قرأها فمات من ليلته دخل الجنة","لا يقربك شيطان حتى تصبح","أ ، ج"],a:3,fx:1},
+{q:"قال أهل العلم عن هذا الدعاء إنه أجمع دعاء:",o:["اللهم إني أسألك العافية في الدنيا والآخرة","اللهم ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار","اللهم إني أسألك الهدى والتقى والعفاف والغنى","اللهم اغفر لي وارحمني وعافني وارزقني"],a:1},
+{q:"دعوة ذي النون (يونس) عليه السلام وهو في بطن الحوت:",o:["لا إله إلا الله الواحد القهار، رب السماوات والأرض وما بينهما العزيز الغفار","لا إله إلا أنت سبحانك إني كنت من الظالمين","اللهم رحمتك أرجو فلا تكلني إلى نفسي طرفة عين","يا حي يا قيوم برحمتك أستغيث"],a:1},
+{q:"أكمل الحديث: كان ﷺ يقول عند الكرب ...",o:["لا إله إلا الله الواحد القهار، رب السماوات والأرض وما بينهما العزيز الغفار","لا إله إلا أنت سبحانك إني كنت من الظالمين","اللهم رحمتك أرجو فلا تكلني إلى نفسي طرفة عين","لا إله إلا الله العظيم الحليم، لا إله إلا الله رب العرش العظيم، لا إله إلا الله رب السماوات ورب الأرض ورب العرش الكريم"],a:3},
+{q:"أكمل الحديث: قال ﷺ: «من قال حين يسمع المؤذن: ... غفر له ذنبه»:",o:["لا حول ولا قوة إلا بالله","اللهم صل على محمد وعلى آله وصحبه وسلم","أشهد أن لا إله إلا الله وحده لا شريك له، وأن محمدًا عبده ورسوله، رضيت بالله ربًا، وبمحمد رسولًا، وبالإسلام دينًا","اللهم رب هذه الدعوة التامة والصلاة القائمة آت محمدًا الوسيلة والفضيلة وابعثه مقامًا محمودًا الذي وعدته"],a:2},
+{q:"من أذكار النوم:",o:["باسمك اللهم أموت وأحيا","الحمد لله الذي أطعمنا وسقانا وكفانا وآوانا فكم ممن لا كافي له ولا مؤوي","قراءة آية الكرسي","كل ما ذُكر"],a:3},
+{q:"أكمل الحديث: قال ﷺ: «... من قرأهما في ليلة كفتاه»:",o:["سورتي الفلق والناس","سورتي الكافرون والإخلاص","الآيتان من آخر سورة البقرة","فاتحة القرآن وآية الكرسي"],a:2},
+{q:"أكمل: كان النبي ﷺ يُعوّذ الحسن والحسين ويقول: «إن أباكما كان يُعوّذ بها إسماعيل وإسحاق»:",o:["أعوذ بكلمات الله التامات من شر ما خلق","أعوذ بكلمات الله التامّة، من كل شيطان وهامّة، ومن كل عين لامّة","بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم","الإخلاص والمعوذتين"],a:1}
+];
+const $=id=>document.getElementById(id);
+const nf=n=>n.toLocaleString('ar-EG');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let list,i,score,wrong,locked,prev={};
+
+function show(id){['start','quiz','end'].forEach(s=>$(s).classList.toggle('hide',s!==id));window.scrollTo(0,0)}
+function begin(){
+  list=shuffle(Q).map(x=>{
+    const idx=x.o.map((_,k)=>k);
+    const pin=/^كل ما/.test(x.o[x.o.length-1]);
+    const last=(prev[x.q]||idx).join();let ord,n=0;
+    do{ord=x.fx?idx:pin?[...shuffle(idx.slice(0,-1)),idx.length-1]:shuffle(idx);n++}while(!x.fx&&ord.join()===last&&n<50);
+    prev[x.q]=ord;
+    return {q:x.q,o:ord.map(k=>x.o[k]),a:ord.indexOf(x.a)};
+  });
+  i=0;score=0;wrong=[];show('quiz');render();
+}
+function render(){
+  const x=list[i];locked=false;
+  $('pos').textContent='السؤال '+nf(i+1)+' من '+nf(list.length);
+  $('pts').textContent='الدرجة: '+nf(score);
+  $('fill').style.width=(i/list.length*100)+'%';
+  $('qt').textContent=x.q;
+  $('fb').textContent='';$('fb').style.color='';
+  $('next').classList.add('hide');
+  const box=$('opts');box.textContent='';
+  x.o.forEach((t,k)=>{
+    const b=document.createElement('button');
+    b.className='opt';b.type='button';b.textContent=t;
+    b.onclick=()=>pick(k);box.appendChild(b);
+  });
+}
+function pick(k){
+  if(locked)return;locked=true;
+  const x=list[i],bs=$('opts').children;
+  [...bs].forEach((b,n)=>{b.disabled=true;if(n===x.a)b.classList.add('ok')});
+  if(k===x.a){score++;$('fb').textContent='إجابة صحيحة، أحسنت';$('fb').style.color='var(--ok)'}
+  else{bs[k].classList.add('no');wrong.push(x);$('fb').textContent='إجابة خاطئة، الصحيحة مظللة بالأخضر';$('fb').style.color='var(--no)'}
+  $('pts').textContent='الدرجة: '+nf(score);
+  $('fill').style.width=((i+1)/list.length*100)+'%';
+  const n=$('next');n.textContent=i===list.length-1?'عرض النتيجة':'السؤال التالي';
+  n.classList.remove('hide');n.focus();
+}
+function finish(){
+  const t=list.length,p=Math.round(score/t*100);
+  $('sc').textContent=nf(score)+' / '+nf(t);
+  $('pc').textContent='النسبة: '+nf(p)+'٪';
+  $('msg').textContent=p>=90?'ما شاء الله، حصيلتك ممتازة':p>=70?'جيد جدًا، بارك الله فيك':p>=50?'جيد، راجع الأخطاء وأعد المحاولة':'تحتاج إلى مراجعة، أعد المحاولة بعد القراءة';
+  const r=$('revl');r.textContent='';
+  wrong.forEach(x=>{
+    const d=document.createElement('div');d.className='item';
+    const b=document.createElement('b');b.textContent=x.q;
+    const s=document.createElement('span');s.textContent='الصحيح: '+x.o[x.a];
+    d.append(b,s);r.appendChild(d);
+  });
+  $('rev').classList.toggle('hide',!wrong.length);
+  $('again').classList.toggle('hide',score===t);
+  show('end');
+}
+$('begin').onclick=begin;$('again').onclick=begin;
+$('next').onclick=()=>{if(i===list.length-1)finish();else{i++;render()}};
+</script>
+</body>
+</html>
